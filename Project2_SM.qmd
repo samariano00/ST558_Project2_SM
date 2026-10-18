@@ -12,7 +12,6 @@ library(tidyverse)
 library(readxl)
 library(lubridate)
 library(ggplot2)
-
 ```
 
 Read-in store sales data file, save as R object, and parse as needed.  The dataset I'm using looks at online sales from a superstore.
@@ -81,5 +80,30 @@ store_data |>
 It's surprising to see how many consumers preferred same day delivery over corporate purchasers, which isn't the way that I thought the data was going to break down.  It's actually made me more curious to know which store this data is from!
 
 ### Numerical Summaries for Quantitative Variables at each level of categorical variables
+To get an idea of the relationship between the quantitative and qualitative variables that I have, I'm going to perform a few analyses (including count, mean, median, standard deviation) of how quantitative variables behave at each level of the qualitative variables.
+
+First, I'm going to look at the relationship between profit and region of the US.
+```{r}
+store_data |>
+  group_by(Region) |>
+  summarize(count = n(),
+            mean_profit = mean(Profit),
+            median_profit = median(Profit),
+            sd_profit = sd(Profit)
+            )
+```
+It looks like the Western US has the most purchases and the highest profit out of all of the other regions.
+
+Next, the relationship between state and discount could be another interesting relationship to look at:
+```{r}
+store_data |>
+  group_by(State) |>
+  summarize(count = n(),
+            mean_discount = mean(Discount),
+            median_discount = median(Discount),
+            sd_discount = sd(Discount)
+  )
+```
+Interestingly, it doesn't seem like a state's purchases coincide very much with discount rates, which could possibly be due to when consumers from that state are making purchases (e.g. some people in certain states might be more likely to buy from this company when there are sales going on than others).
 
 ## Graphical Summaries
