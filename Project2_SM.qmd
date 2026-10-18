@@ -2,11 +2,53 @@
 title: "Project2_SM"
 author: "Sofia Mariano"
 date: "28 October 2026"
+purpose: "Complete ST558 Project 2"
 format: html
 editor: source
 ---
 Prepare session to perform analyses
 ```{r}
+library(tidyverse)
+library(readxl)
+library(lubridate)
+library(ggplot2)
+
+```
+
+Read-in store sales data file, save as R object, and parse as needed
+```{r}
+# here is the initial code to read-in the store sales data and save it as an R object
+store_data <- read_excel("US Superstore data.xls")
+
+# after saving, I'll print once to get an idea of how the object saved and what parsing needs to take place to perform further analysis
+store_data
+class(store_data)
+
+# the object was initially read-in as a tibble, so I don't need to make any conversions in order to work with it in the tidyverse.  Now, I'll parse the data as needed.
+store_data |>
+  rename("Row_ID" = "Row ID",
+         "Order_ID" = "Order ID",
+         "Order_Date" = "Order Date",
+         "Ship_Date" = "Ship Date",
+         "Ship_Mode" = "Ship Mode",
+         "Customer_ID" = "Customer ID",
+         "Customer_Name" = "Customer Name",
+         "Postal_Code" = "Postal Code",
+         "Sub_Category" = "Sub-Category",
+         "Product_ID" = "Product ID",
+         "Product_Name" = "Product Name"
+         ) |>
+  mutate(
+    Order_Date = as.Date(Order_Date),
+    Ship_Date = as.Date(Ship_Date),
+    Ship_Mode = as.factor(Ship_Mode),
+    Segment = as.factor(Segment),
+    State = as.factor(State),
+    Postal_Code = as.character(Postal_Code),
+    Region = as.factor(Region),
+    Category = as.factor(Category),
+    Sub_Category = as.factor(Sub_Category)
+  )
 
 ```
 
