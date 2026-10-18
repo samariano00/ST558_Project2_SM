@@ -15,7 +15,7 @@ library(ggplot2)
 
 ```
 
-Read-in store sales data file, save as R object, and parse as needed
+Read-in store sales data file, save as R object, and parse as needed.  The dataset I'm using looks at online sales from a superstore.
 ```{r}
 # here is the initial code to read-in the store sales data and save it as an R object
 store_data <- read_excel("US Superstore data.xls")
@@ -26,29 +26,60 @@ class(store_data)
 
 # the object was initially read-in as a tibble, so I don't need to make any conversions in order to work with it in the tidyverse.  Now, I'll parse the data as needed.
 store_data |>
-  rename("Row_ID" = "Row ID",
-         "Order_ID" = "Order ID",
-         "Order_Date" = "Order Date",
-         "Ship_Date" = "Ship Date",
-         "Ship_Mode" = "Ship Mode",
-         "Customer_ID" = "Customer ID",
-         "Customer_Name" = "Customer Name",
-         "Postal_Code" = "Postal Code",
-         "Sub_Category" = "Sub-Category",
-         "Product_ID" = "Product ID",
-         "Product_Name" = "Product Name"
-         ) |>
   mutate(
-    Order_Date = as.Date(Order_Date),
-    Ship_Date = as.Date(Ship_Date),
-    Ship_Mode = as.factor(Ship_Mode),
+    `Order Date` = as.Date(`Order Date`),
+    `Ship Date` = as.Date(`Ship Date`),
+    `Ship Mode` = as.factor(`Ship Mode`),
     Segment = as.factor(Segment),
     State = as.factor(State),
-    Postal_Code = as.character(Postal_Code),
+    `Postal Code` = as.character(`Postal Code`),
     Region = as.factor(Region),
     Category = as.factor(Category),
-    Sub_Category = as.factor(Sub_Category)
+    `Sub-Category` = as.factor(`Sub-Category`)
   )
-
 ```
 
+# Preparing for App
+In order to initially explore the data set to get an idea of what type of data I'm interested, I'm going to perform some numerical and graphical summaries of the store sales data set I've read-in.
+
+## Numerical Summaries
+### One-Way Contingency Tables
+To start out, I'm going to look at some one-way contingency tables for some of the categorical data.  Initially, I'll use 'BaseR' to make the table.
+```{r}
+# Since this the first step in initial data exploration, I'm going to include missing values.
+table(store_data$State, useNA = "always")
+
+```
+It looks like Wyoming has the least amount of sales from this store, followed by West Virginia.  The exact store these records are from is never specified, but it's interesting to wonder which it is/ why these states might not have had as many online purchases from this store.
+
+Next, I'll include a one-way contingency table made using 'tidyverse' since that's what I'll use in other portions of the code.
+```{r}
+# I'll look at the same grouping (state) as I did in the BaseR table just to make sure that I'm getting the same output with both methods moving forward.  (Mising values are included by default in this method, so I don't have to worry about having to specify their inclusion.)
+store_data |>
+  group_by(State) |>
+  summarise(count = n())
+```
+Even though the outputs look slightly different, the content is identical, so I'll use the tidyverse method moving forward for continuity in the package I'm working with.
+
+### Two-Way Contingency Tables
+Moving onto two-way contingency tables, I can now look at the relationship between two variables of my choosing.
+
+For my first table, I'm interested in the relationship between category and sub category, so I can visualize that using a two-way table.
+```{r}
+store_data |>
+  group_by(Category, `Sub-Category`) |>
+  summarize(count = n())
+```
+This output also helps me to get an idea of exactly what sub-categories exist and fall into which categories without having to comb through my data set, so it's a bonus for exploratory data purposes!
+
+For my second two-way table, I'd like to look at the relationship between shipping method (mode) and what segment the consumer is purchasing from (consumer, business, etc)
+```{r}
+store_data |>
+  group_by(`Ship Mode`, Segment) |>
+  summarize(count = n())
+```
+It's surprising to see how many consumers preferred same day delivery over corporate purchasers, which isn't the way that I thought the data was going to break down.  It's actually made me more curious to know which store this data is from!
+
+### Numerical Summaries for Quantitative Variables at each level of categorical variables
+
+## Graphical Summaries
