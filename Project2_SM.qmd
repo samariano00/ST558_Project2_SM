@@ -12,6 +12,8 @@ library(tidyverse)
 library(readxl)
 library(lubridate)
 library(ggplot2)
+library(see)
+library(ggdist)
 ```
 
 Read-in store sales data file, save as R object, and parse as needed.  The dataset I'm using looks at online sales from a superstore.
@@ -107,3 +109,110 @@ store_data |>
 Interestingly, it doesn't seem like a state's purchases coincide very much with discount rates, which could possibly be due to when consumers from that state are making purchases (e.g. some people in certain states might be more likely to buy from this company when there are sales going on than others).
 
 ## Graphical Summaries
+To visualize the relationship between different variables, there are several kinds of graphs that can be created.
+
+For the first graph, I want to visualize the relationship between region of the US and category of the item purchased.
+```{r}
+a <- ggplot(data = store_data |>
+              drop_na(Region, Category),
+            aes(x = Region, fill = Category)
+)
+a + geom_bar(position = "dodge") +
+  labs(x = "Region",
+       y = "Number of Sales",
+       title = "Product Category Sales across Different Regions") +
+  scale_fill_discrete("Category")
+```
+It looks like office supplies dominate the sales in every region of the US which makes sense considering the longevity of products in the other two categories.
+
+Next, I want to see if a product's category had any impact on whether or not a profit was made on the sale.
+```{r}
+b <- ggplot(data = store_data |>
+              drop_na(Category, Profit),
+            aes(x = Category, y = Profit, fill = Category)
+)
+b + geom_violindot() +
+  labs(x = "Product Category",
+       y = "Profit (USD)",
+       title = "Relationship Between Product Category and Profit"
+       )
+```
+It looks like there tends to be a net profit loss in furniture, a slight net profit gain in office supplies, and a relatively even split in technology although it's difficult to see.
+
+I want to look more into the technology to get an idea of whether a product's sub-category impacts its profit at all as well as if region impacted profit as all.
+```{r}
+c <- ggplot(data = store_data |>
+              drop_na(Profit, Category, `Sub-Category`, Region) |>
+              filter(Category %in% "Technology"),
+            aes(x = Region, y = Profit, fill = Region)
+  )
+c + geom_violindot() +
+  labs(x = "US Region",
+       y = "Profit (USD)",
+       title = "How Technological Product Sub-Category and Region\nImpact Profit") +
+  scale_fill_discrete("Region") +
+  facet_wrap(~ `Sub-Category`)
+```
+Although there may be outliers impacting the results, it doesn't seem that region has an overwhelming impact on Profit made off of the sale of a technological product.  However, it does seem that out of the four sub-categories, copiers tended to bring in the most profit.
+
+In reviewing the dataset again, the relationship between consumer segment (personal or corporate/ business) and number of units sold seems interesting, so I'm going to try to visualize it graphically.
+```{r}
+d <- ggplot(data = store_data |>
+              drop_na(Segment, Quantity),
+            aes(x = Segment, y = Quantity, fill = Segment)
+            )
+d + geom_violindot() +
+  labs(x = "Consumer's Segment",
+       y = "Quantity of Units Sold",
+       title = "Analyzing the Relationship Between\na Consumer's Segment and Number of Units Sold")
+```
+Interestingly, what segment a consumer was in didn't seem to impact how many units of an item they bought, though it may be impacted by category.
+
+To look at this, I'll make the same graphs, now accounting for a product's category.
+```{r}
+e <- ggplot(data = store_data |>
+              drop_na(Segment, Quantity, Category),
+            aes(x = Segment, y = Quantity, fill = Segment)
+            )
+e + geom_violindot() +
+  labs(x = "Consumer's Segment",
+       y = "Quantity of Units Sold",
+       title = "Analyzing the Relationship Between\nConsumer Segment, Number of Units Sold, and Product Category") +
+  facet_wrap(~Category) +
+  theme(
+    axis.text.x = element_blank() # in troubleshooting this plot, the individual x-axis labels were troublesome, so I decided to remove them to make the graphs look better
+  )
+```
+It doesn't seem like product category had a significantly large impact either on the quantity of units sold, as all had relatively similar amounts purchased on the lower and upper ends.  The only slight difference seems to be in office supply products.
+
+And now, just out curiosity, I want to see if there's any relationship between the sales, profits, and region in the US they were purchasing from.
+```{r}
+f <- ggplot(data = store_data |>
+              drop_na(Sales, Profit, Region),
+            aes(x = Sales, y = Profit, color = Region)
+            )
+f + geom_point() +
+  geom_smooth(method = lm) +
+  labs(x = "Sales (USD)",
+       y = "Profits (USD)",
+       title = "Investigating Intersection Between Consumer Segment\n Number of Units Sold and Discount Rate Applied"
+       )
+```
+Though it's weak, there is a slightly positive correlation between money the consumer spent in sales and profit made by the company on sales.  The region with the least amount of profit seemed to be the South.  The linear regression line of the East seems to be underneath the West linear regression line.
+
+That being said, I'm interested to find out in what categories companies tended to lose the most money in and if region.
+```{r}
+g <- ggplot(data = store_data |>
+              drop_na(Sales, Profit, Region, Category) |>
+              filter(Profit < 0),
+            aes(x = Sales, y = Profit, color = Region)
+            )
+g + geom_point() +
+  geom_smooth(method = lm) +
+  facet_wrap(~ Category) +
+  labs(x = "Sales (USD)",
+       y = "Profit (USD)",
+       title = "Investigating to see if Consumer Region and Product Category\nImpact Profit Loss") +
+  scale_x_continuous(breaks = seq(0,30000, by = 10000)) # the x axis tick marks were too busy, so this is to adjust their appearance
+```
+Interestingly, it seems like region and product category did seem to have some impact in whether the company experienced profit loss in a sale.  I make this conclusion due to the fact that the steepness of the slope in each region changes between product categories.  For example, the Central US seemed to have the most negative correlation relating to profit loss in Office Supply products, but didn't seem to have as negative of a correlation in Furniture or Technology profit losses.
