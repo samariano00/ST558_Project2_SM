@@ -1,6 +1,7 @@
 library(shiny)
 library(bslib)
 library(ggplot2)
+library(glue)
 
 # Define UI
 ui <- fluidPage(
@@ -20,6 +21,16 @@ ui <- fluidPage(
 
         # Show a plot of the generated distribution
         mainPanel(
+          navset_pill(
+            nav_panel("About",
+                      markdown(
+                        glue(
+                          "This data was obtained from [Kaggle](https://www.kaggle.com/datasets/juhi1994/superstore/data)"
+                        )
+                      )),
+            nav_panel("Data Download"),
+            nav_panel("Data Exploration")
+          ),
            plotOutput("distPlot")
         )
     )
