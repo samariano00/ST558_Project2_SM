@@ -155,28 +155,488 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="quarto" class="level2">
-<h2 class="anchored" data-anchor-id="quarto">Quarto</h2>
-<p>Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <a href="https://quarto.org" class="uri">https://quarto.org</a>.</p>
+<p>Prepare session to perform analyses</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.2.1     ✔ readr     2.2.0
+✔ forcats   1.0.1     ✔ stringr   1.6.0
+✔ ggplot2   4.0.3     ✔ tibble    3.3.1
+✔ lubridate 1.9.5     ✔ tidyr     1.3.2
+✔ purrr     1.2.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(see)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggdist)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Read-in store sales data file, save as R object, and parse as needed. The dataset I’m using looks at online sales from a superstore.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># here is the initial code to read-in the store sales data and save it as an R object</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>store_data <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"US Superstore data.xls"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Coercing text to numeric in L2236 / R2236C12: '05408'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Coercing text to numeric in L5276 / R5276C12: '05408'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Coercing text to numeric in L8800 / R8800C12: '05408'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Coercing text to numeric in L9148 / R9148C12: '05408'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Coercing text to numeric in L9149 / R9149C12: '05408'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Coercing text to numeric in L9150 / R9150C12: '05408'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Coercing text to numeric in L9388 / R9388C12: '05408'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Coercing text to numeric in L9389 / R9389C12: '05408'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Coercing text to numeric in L9390 / R9390C12: '05408'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Coercing text to numeric in L9391 / R9391C12: '05408'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Coercing text to numeric in L9743 / R9743C12: '05408'</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># after saving, I'll print once to get an idea of how the object saved and what parsing needs to take place to perform further analysis</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>store_data</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 9,994 × 21
+   `Row ID` `Order ID`     `Order Date`        `Ship Date`         `Ship Mode`  
+      &lt;dbl&gt; &lt;chr&gt;          &lt;dttm&gt;              &lt;dttm&gt;              &lt;chr&gt;        
+ 1        1 CA-2016-152156 2016-11-08 00:00:00 2016-11-11 00:00:00 Second Class 
+ 2        2 CA-2016-152156 2016-11-08 00:00:00 2016-11-11 00:00:00 Second Class 
+ 3        3 CA-2016-138688 2016-06-12 00:00:00 2016-06-16 00:00:00 Second Class 
+ 4        4 US-2015-108966 2015-10-11 00:00:00 2015-10-18 00:00:00 Standard Cla…
+ 5        5 US-2015-108966 2015-10-11 00:00:00 2015-10-18 00:00:00 Standard Cla…
+ 6        6 CA-2014-115812 2014-06-09 00:00:00 2014-06-14 00:00:00 Standard Cla…
+ 7        7 CA-2014-115812 2014-06-09 00:00:00 2014-06-14 00:00:00 Standard Cla…
+ 8        8 CA-2014-115812 2014-06-09 00:00:00 2014-06-14 00:00:00 Standard Cla…
+ 9        9 CA-2014-115812 2014-06-09 00:00:00 2014-06-14 00:00:00 Standard Cla…
+10       10 CA-2014-115812 2014-06-09 00:00:00 2014-06-14 00:00:00 Standard Cla…
+# ℹ 9,984 more rows
+# ℹ 16 more variables: `Customer ID` &lt;chr&gt;, `Customer Name` &lt;chr&gt;,
+#   Segment &lt;chr&gt;, Country &lt;chr&gt;, City &lt;chr&gt;, State &lt;chr&gt;, `Postal Code` &lt;dbl&gt;,
+#   Region &lt;chr&gt;, `Product ID` &lt;chr&gt;, Category &lt;chr&gt;, `Sub-Category` &lt;chr&gt;,
+#   `Product Name` &lt;chr&gt;, Sales &lt;dbl&gt;, Quantity &lt;dbl&gt;, Discount &lt;dbl&gt;,
+#   Profit &lt;dbl&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(store_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "tbl_df"     "tbl"        "data.frame"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># the object was initially read-in as a tibble, so I don't need to make any conversions in order to work with it in the tidyverse.  Now, I'll parse the data as needed.</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>store_data <span class="sc">|&gt;</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Order Date</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">as.Date</span>(<span class="st">`</span><span class="at">Order Date</span><span class="st">`</span>),</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Ship Date</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">as.Date</span>(<span class="st">`</span><span class="at">Ship Date</span><span class="st">`</span>),</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Ship Mode</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">as.factor</span>(<span class="st">`</span><span class="at">Ship Mode</span><span class="st">`</span>),</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Segment =</span> <span class="fu">as.factor</span>(Segment),</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">State =</span> <span class="fu">as.factor</span>(State),</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Postal Code</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">as.character</span>(<span class="st">`</span><span class="at">Postal Code</span><span class="st">`</span>),</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">Region =</span> <span class="fu">as.factor</span>(Region),</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">Category =</span> <span class="fu">as.factor</span>(Category),</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Sub-Category</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">as.factor</span>(<span class="st">`</span><span class="at">Sub-Category</span><span class="st">`</span>)</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 9,994 × 21
+   `Row ID` `Order ID`     `Order Date` `Ship Date` `Ship Mode`    `Customer ID`
+      &lt;dbl&gt; &lt;chr&gt;          &lt;date&gt;       &lt;date&gt;      &lt;fct&gt;          &lt;chr&gt;        
+ 1        1 CA-2016-152156 2016-11-08   2016-11-11  Second Class   CG-12520     
+ 2        2 CA-2016-152156 2016-11-08   2016-11-11  Second Class   CG-12520     
+ 3        3 CA-2016-138688 2016-06-12   2016-06-16  Second Class   DV-13045     
+ 4        4 US-2015-108966 2015-10-11   2015-10-18  Standard Class SO-20335     
+ 5        5 US-2015-108966 2015-10-11   2015-10-18  Standard Class SO-20335     
+ 6        6 CA-2014-115812 2014-06-09   2014-06-14  Standard Class BH-11710     
+ 7        7 CA-2014-115812 2014-06-09   2014-06-14  Standard Class BH-11710     
+ 8        8 CA-2014-115812 2014-06-09   2014-06-14  Standard Class BH-11710     
+ 9        9 CA-2014-115812 2014-06-09   2014-06-14  Standard Class BH-11710     
+10       10 CA-2014-115812 2014-06-09   2014-06-14  Standard Class BH-11710     
+# ℹ 9,984 more rows
+# ℹ 15 more variables: `Customer Name` &lt;chr&gt;, Segment &lt;fct&gt;, Country &lt;chr&gt;,
+#   City &lt;chr&gt;, State &lt;fct&gt;, `Postal Code` &lt;chr&gt;, Region &lt;fct&gt;,
+#   `Product ID` &lt;chr&gt;, Category &lt;fct&gt;, `Sub-Category` &lt;fct&gt;,
+#   `Product Name` &lt;chr&gt;, Sales &lt;dbl&gt;, Quantity &lt;dbl&gt;, Discount &lt;dbl&gt;,
+#   Profit &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<section id="preparing-for-app" class="level1">
+<h1>Preparing for App</h1>
+<p>In order to initially explore the data set to get an idea of what type of data I’m interested, I’m going to perform some numerical and graphical summaries of the store sales data set I’ve read-in.</p>
+<section id="numerical-summaries" class="level2">
+<h2 class="anchored" data-anchor-id="numerical-summaries">Numerical Summaries</h2>
+<section id="one-way-contingency-tables" class="level3">
+<h3 class="anchored" data-anchor-id="one-way-contingency-tables">One-Way Contingency Tables</h3>
+<p>To start out, I’m going to look at some one-way contingency tables for some of the categorical data. Initially, I’ll use ‘BaseR’ to make the table.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Since this the first step in initial data exploration, I'm going to include missing values.</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(store_data<span class="sc">$</span>State, <span class="at">useNA =</span> <span class="st">"always"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+             Alabama              Arizona             Arkansas 
+                  61                  224                   60 
+          California             Colorado          Connecticut 
+                2001                  182                   82 
+            Delaware District of Columbia              Florida 
+                  96                   10                  383 
+             Georgia                Idaho             Illinois 
+                 184                   21                  492 
+             Indiana                 Iowa               Kansas 
+                 149                   30                   24 
+            Kentucky            Louisiana                Maine 
+                 139                   42                    8 
+            Maryland        Massachusetts             Michigan 
+                 105                  135                  255 
+           Minnesota          Mississippi             Missouri 
+                  89                   53                   66 
+             Montana             Nebraska               Nevada 
+                  15                   38                   39 
+       New Hampshire           New Jersey           New Mexico 
+                  27                  130                   37 
+            New York       North Carolina         North Dakota 
+                1128                  249                    7 
+                Ohio             Oklahoma               Oregon 
+                 469                   66                  124 
+        Pennsylvania         Rhode Island       South Carolina 
+                 587                   56                   42 
+        South Dakota            Tennessee                Texas 
+                  12                  183                  985 
+                Utah              Vermont             Virginia 
+                  53                   11                  224 
+          Washington        West Virginia            Wisconsin 
+                 506                    4                  110 
+             Wyoming                 &lt;NA&gt; 
+                   1                    0 </code></pre>
+</div>
+</div>
+<p>It looks like Wyoming has the least amount of sales from this store, followed by West Virginia. The exact store these records are from is never specified, but it’s interesting to wonder which it is/ why these states might not have had as many online purchases from this store.</p>
+<p>Next, I’ll include a one-way contingency table made using ‘tidyverse’ since that’s what I’ll use in other portions of the code.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># I'll look at the same grouping (state) as I did in the BaseR table just to make sure that I'm getting the same output with both methods moving forward.  (Mising values are included by default in this method, so I don't have to worry about having to specify their inclusion.)</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>store_data <span class="sc">|&gt;</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(State) <span class="sc">|&gt;</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 49 × 2
+   State                count
+   &lt;chr&gt;                &lt;int&gt;
+ 1 Alabama                 61
+ 2 Arizona                224
+ 3 Arkansas                60
+ 4 California            2001
+ 5 Colorado               182
+ 6 Connecticut             82
+ 7 Delaware                96
+ 8 District of Columbia    10
+ 9 Florida                383
+10 Georgia                184
+# ℹ 39 more rows</code></pre>
+</div>
+</div>
+<p>Even though the outputs look slightly different, the content is identical, so I’ll use the tidyverse method moving forward for continuity in the package I’m working with.</p>
 </section>
-<section id="running-code" class="level2">
-<h2 class="anchored" data-anchor-id="running-code">Running Code</h2>
-<p>When you click the <strong>Render</strong> button a document will be generated that includes both content and the output of embedded code. You can embed code like this:</p>
+<section id="two-way-contingency-tables" class="level3">
+<h3 class="anchored" data-anchor-id="two-way-contingency-tables">Two-Way Contingency Tables</h3>
+<p>Moving onto two-way contingency tables, I can now look at the relationship between two variables of my choosing.</p>
+<p>For my first table, I’m interested in the relationship between category and sub category, so I can visualize that using a two-way table.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>store_data <span class="sc">|&gt;</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Category, <span class="st">`</span><span class="at">Sub-Category</span><span class="st">`</span>) <span class="sc">|&gt;</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count =</span> <span class="fu">n</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has regrouped the output.
+ℹ Summaries were computed grouped by Category and Sub-Category.
+ℹ Output is grouped by Category.
+ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+ℹ Use `summarise(.by = c(Category, Sub-Category))` for per-operation grouping
+  (`?dplyr::dplyr_by`) instead.</code></pre>
+</div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 2</code></pre>
+<pre><code># A tibble: 17 × 3
+# Groups:   Category [3]
+   Category        `Sub-Category` count
+   &lt;chr&gt;           &lt;chr&gt;          &lt;int&gt;
+ 1 Furniture       Bookcases        228
+ 2 Furniture       Chairs           617
+ 3 Furniture       Furnishings      957
+ 4 Furniture       Tables           319
+ 5 Office Supplies Appliances       466
+ 6 Office Supplies Art              796
+ 7 Office Supplies Binders         1523
+ 8 Office Supplies Envelopes        254
+ 9 Office Supplies Fasteners        217
+10 Office Supplies Labels           364
+11 Office Supplies Paper           1370
+12 Office Supplies Storage          846
+13 Office Supplies Supplies         190
+14 Technology      Accessories      775
+15 Technology      Copiers           68
+16 Technology      Machines         115
+17 Technology      Phones           889</code></pre>
 </div>
 </div>
-<p>You can add options to executable code like this</p>
+<p>This output also helps me to get an idea of exactly what sub-categories exist and fall into which categories without having to comb through my data set, so it’s a bonus for exploratory data purposes!</p>
+<p>For my second two-way table, I’d like to look at the relationship between shipping method (mode) and what segment the consumer is purchasing from (consumer, business, etc)</p>
 <div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>store_data <span class="sc">|&gt;</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(<span class="st">`</span><span class="at">Ship Mode</span><span class="st">`</span>, Segment) <span class="sc">|&gt;</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count =</span> <span class="fu">n</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has regrouped the output.
+ℹ Summaries were computed grouped by Ship Mode and Segment.
+ℹ Output is grouped by Ship Mode.
+ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+ℹ Use `summarise(.by = c(Ship Mode, Segment))` for per-operation grouping
+  (`?dplyr::dplyr_by`) instead.</code></pre>
+</div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 4</code></pre>
+<pre><code># A tibble: 12 × 3
+# Groups:   Ship Mode [4]
+   `Ship Mode`    Segment     count
+   &lt;chr&gt;          &lt;chr&gt;       &lt;int&gt;
+ 1 First Class    Consumer      769
+ 2 First Class    Corporate     485
+ 3 First Class    Home Office   284
+ 4 Same Day       Consumer      317
+ 5 Same Day       Corporate     114
+ 6 Same Day       Home Office   112
+ 7 Second Class   Consumer     1020
+ 8 Second Class   Corporate     609
+ 9 Second Class   Home Office   316
+10 Standard Class Consumer     3085
+11 Standard Class Corporate    1812
+12 Standard Class Home Office  1071</code></pre>
 </div>
 </div>
-<p>The <code>echo: false</code> option disables the printing of code (only output is displayed).</p>
+<p>It’s surprising to see how many consumers preferred same day delivery over corporate purchasers, which isn’t the way that I thought the data was going to break down. It’s actually made me more curious to know which store this data is from!</p>
+</section>
+<section id="numerical-summaries-for-quantitative-variables-at-each-level-of-categorical-variables" class="level3">
+<h3 class="anchored" data-anchor-id="numerical-summaries-for-quantitative-variables-at-each-level-of-categorical-variables">Numerical Summaries for Quantitative Variables at each level of categorical variables</h3>
+<p>To get an idea of the relationship between the quantitative and qualitative variables that I have, I’m going to perform a few analyses (including count, mean, median, standard deviation) of how quantitative variables behave at each level of the qualitative variables.</p>
+<p>First, I’m going to look at the relationship between profit and region of the US.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>store_data <span class="sc">|&gt;</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Region) <span class="sc">|&gt;</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count =</span> <span class="fu">n</span>(),</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_profit =</span> <span class="fu">mean</span>(Profit),</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">median_profit =</span> <span class="fu">median</span>(Profit),</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_profit =</span> <span class="fu">sd</span>(Profit)</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>            )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 5
+  Region  count mean_profit median_profit sd_profit
+  &lt;chr&gt;   &lt;int&gt;       &lt;dbl&gt;         &lt;dbl&gt;     &lt;dbl&gt;
+1 Central  2323        17.1          5.18      291.
+2 East     2848        32.1          8.17      252.
+3 South    1620        28.9          9.07      213.
+4 West     3203        33.8         11.2       174.</code></pre>
+</div>
+</div>
+<p>It looks like the Western US has the most purchases and the highest profit out of all of the other regions.</p>
+<p>Next, the relationship between state and discount could be another interesting relationship to look at:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>store_data <span class="sc">|&gt;</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(State) <span class="sc">|&gt;</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count =</span> <span class="fu">n</span>(),</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_discount =</span> <span class="fu">mean</span>(Discount),</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">median_discount =</span> <span class="fu">median</span>(Discount),</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_discount =</span> <span class="fu">sd</span>(Discount)</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 49 × 5
+   State                count mean_discount median_discount sd_discount
+   &lt;chr&gt;                &lt;int&gt;         &lt;dbl&gt;           &lt;dbl&gt;       &lt;dbl&gt;
+ 1 Alabama                 61       0                   0        0     
+ 2 Arizona                224       0.304               0.2      0.197 
+ 3 Arkansas                60       0                   0        0     
+ 4 California            2001       0.0728              0        0.0952
+ 5 Colorado               182       0.316               0.2      0.209 
+ 6 Connecticut             82       0.00732             0        0.0466
+ 7 Delaware                96       0.00625             0        0.0431
+ 8 District of Columbia    10       0                   0        0     
+ 9 Florida                383       0.299               0.2      0.193 
+10 Georgia                184       0                   0        0     
+# ℹ 39 more rows</code></pre>
+</div>
+</div>
+<p>Interestingly, it doesn’t seem like a state’s purchases coincide very much with discount rates, which could possibly be due to when consumers from that state are making purchases (e.g.&nbsp;some people in certain states might be more likely to buy from this company when there are sales going on than others).</p>
+</section>
+</section>
+<section id="graphical-summaries" class="level2">
+<h2 class="anchored" data-anchor-id="graphical-summaries">Graphical Summaries</h2>
+<p>To visualize the relationship between different variables, there are several kinds of graphs that can be created.</p>
+<p>For the first graph, I want to visualize the relationship between region of the US and category of the item purchased.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> store_data <span class="sc">|&gt;</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>              <span class="fu">drop_na</span>(Region, Category),</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">x =</span> Region, <span class="at">fill =</span> Category)</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>a <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="at">position =</span> <span class="st">"dodge"</span>) <span class="sc">+</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Region"</span>,</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Number of Sales"</span>,</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Product Category Sales across Different Regions"</span>) <span class="sc">+</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_discrete</span>(<span class="st">"Category"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Project2_SM_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>It looks like office supplies dominate the sales in every region of the US which makes sense considering the longevity of products in the other two categories.</p>
+<p>Next, I want to see if a product’s category had any impact on whether or not a profit was made on the sale.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> store_data <span class="sc">|&gt;</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>              <span class="fu">drop_na</span>(Category, Profit),</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">x =</span> Category, <span class="at">y =</span> Profit, <span class="at">fill =</span> Category)</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>b <span class="sc">+</span> <span class="fu">geom_violindot</span>() <span class="sc">+</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Product Category"</span>,</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Profit (USD)"</span>,</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Relationship Between Product Category and Profit"</span></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>       )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Project2_SM_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>It looks like there tends to be a net profit loss in furniture, a slight net profit gain in office supplies, and a relatively even split in technology although it’s difficult to see.</p>
+<p>I want to look more into the technology to get an idea of whether a product’s sub-category impacts its profit at all as well as if region impacted profit as all.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>c <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> store_data <span class="sc">|&gt;</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>              <span class="fu">drop_na</span>(Profit, Category, <span class="st">`</span><span class="at">Sub-Category</span><span class="st">`</span>, Region) <span class="sc">|&gt;</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>              <span class="fu">filter</span>(Category <span class="sc">%in%</span> <span class="st">"Technology"</span>),</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">x =</span> Region, <span class="at">y =</span> Profit, <span class="at">fill =</span> Region)</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>c <span class="sc">+</span> <span class="fu">geom_violindot</span>() <span class="sc">+</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"US Region"</span>,</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Profit (USD)"</span>,</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"How Technological Product Sub-Category and Region</span><span class="sc">\n</span><span class="st">Impact Profit"</span>) <span class="sc">+</span></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_discrete</span>(<span class="st">"Region"</span>) <span class="sc">+</span></span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> <span class="st">`</span><span class="at">Sub-Category</span><span class="st">`</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Project2_SM_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Although there may be outliers impacting the results, it doesn’t seem that region has an overwhelming impact on Profit made off of the sale of a technological product. However, it does seem that out of the four sub-categories, copiers tended to bring in the most profit.</p>
+<p>In reviewing the dataset again, the relationship between consumer segment (personal or corporate/ business) and number of units sold seems interesting, so I’m going to try to visualize it graphically.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> store_data <span class="sc">|&gt;</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>              <span class="fu">drop_na</span>(Segment, Quantity),</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">x =</span> Segment, <span class="at">y =</span> Quantity, <span class="at">fill =</span> Segment)</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>d <span class="sc">+</span> <span class="fu">geom_violindot</span>() <span class="sc">+</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Consumer's Segment"</span>,</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Quantity of Units Sold"</span>,</span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Analyzing the Relationship Between</span><span class="sc">\n</span><span class="st">a Consumer's Segment and Number of Units Sold"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Project2_SM_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Interestingly, what segment a consumer was in didn’t seem to impact how many units of an item they bought, though it may be impacted by category.</p>
+<p>To look at this, I’ll make the same graphs, now accounting for a product’s category.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>e <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> store_data <span class="sc">|&gt;</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>              <span class="fu">drop_na</span>(Segment, Quantity, Category),</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">x =</span> Segment, <span class="at">y =</span> Quantity, <span class="at">fill =</span> Segment)</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>e <span class="sc">+</span> <span class="fu">geom_violindot</span>() <span class="sc">+</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Consumer's Segment"</span>,</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Quantity of Units Sold"</span>,</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Analyzing the Relationship Between</span><span class="sc">\n</span><span class="st">Consumer Segment, Number of Units Sold, and Product Category"</span>) <span class="sc">+</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Category) <span class="sc">+</span></span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_blank</span>() <span class="co"># in troubleshooting this plot, the individual x-axis labels were troublesome, so I decided to remove them to make the graphs look better</span></span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Project2_SM_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>It doesn’t seem like product category had a significantly large impact either on the quantity of units sold, as all had relatively similar amounts purchased on the lower and upper ends. The only slight difference seems to be in office supply products.</p>
+<p>And now, just out curiosity, I want to see if there’s any relationship between the sales, profits, and region in the US they were purchasing from.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> store_data <span class="sc">|&gt;</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>              <span class="fu">drop_na</span>(Sales, Profit, Region),</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">x =</span> Sales, <span class="at">y =</span> Profit, <span class="at">color =</span> Region)</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>f <span class="sc">+</span> <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> lm) <span class="sc">+</span></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Sales (USD)"</span>,</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Profits (USD)"</span>,</span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Investigating Intersection Between Consumer Segment</span><span class="sc">\n</span><span class="st"> Number of Units Sold and Discount Rate Applied"</span></span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>       )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Project2_SM_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Though it’s weak, there is a slightly positive correlation between money the consumer spent in sales and profit made by the company on sales. The region with the least amount of profit seemed to be the South. The linear regression line of the East seems to be underneath the West linear regression line.</p>
+<p>That being said, I’m interested to find out in what categories companies tended to lose the most money in and if region.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> store_data <span class="sc">|&gt;</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>              <span class="fu">drop_na</span>(Sales, Profit, Region, Category) <span class="sc">|&gt;</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>              <span class="fu">filter</span>(Profit <span class="sc">&lt;</span> <span class="dv">0</span>),</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">x =</span> Sales, <span class="at">y =</span> Profit, <span class="at">color =</span> Region)</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>g <span class="sc">+</span> <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> lm) <span class="sc">+</span></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> Category) <span class="sc">+</span></span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Sales (USD)"</span>,</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Profit (USD)"</span>,</span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Investigating to see if Consumer Region and Product Category</span><span class="sc">\n</span><span class="st">Impact Profit Loss"</span>) <span class="sc">+</span></span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">30000</span>, <span class="at">by =</span> <span class="dv">10000</span>)) <span class="co"># the x axis tick marks were too busy, so this is to adjust their appearance</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Project2_SM_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Interestingly, it seems like region and product category did seem to have some impact in whether the company experienced profit loss in a sale. I make this conclusion due to the fact that the steepness of the slope in each region changes between product categories. For example, the Central US seemed to have the most negative correlation relating to profit loss in Office Supply products, but didn’t seem to have as negative of a correlation in Furniture or Technology profit losses.</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
