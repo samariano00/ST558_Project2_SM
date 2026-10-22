@@ -55,7 +55,7 @@ It looks like Wyoming has the least amount of sales from this store, followed by
 
 Next, I'll include a one-way contingency table made using 'tidyverse' since that's what I'll use in other portions of the code.
 ```{r}
-# I'll look at the same grouping (state) as I did in the BaseR table just to make sure that I'm getting the same output with both methods moving forward.  (Mising values are included by default in this method, so I don't have to worry about having to specify their inclusion.)
+# I'll look at the same grouping (state) as I did in the BaseR table just to make sure that I'm getting the same output with both methods moving forward.  (Missing values are included by default in this method, so I don't have to worry about having to specify their inclusion.)
 store_data |>
   group_by(State) |>
   summarise(count = n())
@@ -79,7 +79,7 @@ store_data |>
   group_by(`Ship Mode`, Segment) |>
   summarize(count = n())
 ```
-It's surprising to see how many consumers preferred same day delivery over corporate purchasers, which isn't the way that I thought the data was going to break down.  It's actually made me more curious to know which store this data is from!
+It's surprising to see how many consumers preferred same day delivery over corporate purchasers, which isn't the way that I thought the data was going to break down.
 
 ### Numerical Summaries for Quantitative Variables at each level of categorical variables
 To get an idea of the relationship between the quantitative and qualitative variables that I have, I'm going to perform a few analyses (including count, mean, median, standard deviation) of how quantitative variables behave at each level of the qualitative variables.
