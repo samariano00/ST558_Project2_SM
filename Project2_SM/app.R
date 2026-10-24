@@ -1,7 +1,11 @@
 library(shiny)
 library(bslib)
+library(tidyverse)
 library(ggplot2)
 library(glue)
+
+# Load the raw data into R
+store_data <- readRDS("../superstoredata.RDS")
 
 # Define UI
 ui <- fluidPage(
@@ -9,9 +13,10 @@ ui <- fluidPage(
     # Application title
     titlePanel("U.S. Superstore online order data from 2014-2018"),
 
-    # Sidebar with a slider input for number of bins 
+    # Add Control Widgets to Sidebar
     sidebarLayout(
         sidebarPanel(
+          # Add in input values for categorical variables
             sliderInput("bins",
                         "Number of bins:",
                         min = 1,

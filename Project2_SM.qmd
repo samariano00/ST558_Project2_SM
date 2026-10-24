@@ -38,6 +38,9 @@ store_data |>
     Category = as.factor(Category),
     `Sub-Category` = as.factor(`Sub-Category`)
   )
+
+# Because I'll use this data in creating the shiny app, I'll save it as a R data set to reference in the app's creation.
+saveRDS(store_data, file = "superstoredata.RDS")
 ```
 
 # Preparing for App
