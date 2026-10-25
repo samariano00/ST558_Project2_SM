@@ -3,6 +3,7 @@ library(bslib)
 library(tidyverse)
 library(ggplot2)
 library(glue)
+library(DT)
 
 # Load the raw data into R
 store_data <- readRDS("../superstoredata.RDS")
@@ -16,7 +17,29 @@ ui <- fluidPage(
     # Add Control Widgets to Sidebar
     sidebarLayout(
         sidebarPanel(
+          h2("Create a Subset of the Data"),
           # Add in input values for categorical variables
+          checkboxGroupInput(inputId = "region",
+                             label = "U.S. Region",
+                             choiceNames = c("Central", "South", "East", "West"),
+                             choiceValues = c("central", "south", "east", "west"),
+                             selected = "east"
+                             ),
+          checkboxGroupInput(inputId = "consumer",
+                             label = "Consumer's Segment",
+                             choiceNames = c("Consumer", "Corporate", "Home Office"),
+                             choiceValues = c("consumer", "corporate", "home office"),
+                             selected = "consumer"
+                             ),
+          checkboxGroupInput(inputId = "category",
+                             label = "Product Category",
+                             choiceNames = c("Furniture", "Office Supplies", "Technology"),
+                             choiceValues = c("furniture", "office supplies", "technology"),
+                             selected = "Furniture"
+                             ),
+          # Add input values for numeric variables
+          sliderInput(inputId = "profit",
+                      label = "Profit from Sale",),
             sliderInput("bins",
                         "Number of bins:",
                         min = 1,
