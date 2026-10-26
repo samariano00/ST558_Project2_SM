@@ -39,18 +39,18 @@ ui <- fluidPage(
                              ),
           
           # Add input values for numeric variables
-          sliderInput(inputId = "profit",
-                      label = "Profit from Individual Sales (USD)",
-                      min = -6600,
-                      max = 8400,
-                      value = c(-1000,1000),
-                      pre = "$"),
-          sliderInput(inputId = "sales",
-                      label = "Individual Sales (USD)",
+          sliderInput(inputId = "quantity",
+                      label = "Quantity of Units Sold",
+                      min = 1,
+                      max = 14,
+                      value = c(2,10)
+                      ),
+          sliderInput(inputId = "discount",
+                      label = "Discount Applied to Item(s)",
                       min = 0,
-                      max = 22650,
-                      value = c(0,10000),
-                      pre = "$"),
+                      max = 1,
+                      value = c(0.25,0.75)
+                      ),
           
           # Add code for action button
           actionButton(inputId = "store_sample",
@@ -62,7 +62,7 @@ ui <- fluidPage(
                         value = 30)
         ),
 
-        # Show a plot of the generated distribution
+        # Add code for different tabs as desired in the main panel
         mainPanel(
           navset_pill(
             nav_panel("About",
@@ -89,9 +89,50 @@ ui <- fluidPage(
                       ),
             nav_panel("Data Download"),
             nav_panel("Data Exploration",
+                      sidebarPanel(
+                        # Additional categorical variables
+                        checkboxGroupInput(inputId = "sub-category",
+                                           label = "Product's Sub-Category",
+                                           choiceNames = c("Accessories", "Appliances", "Art", "Binders", "Bookcases", "Chairs", "Copiers", "Envelopes", "Fasteners", "Furnishings", "Labels", "Machines", "Paper", "Phones", "Storage", "Supplies", "Tables"),
+                                           choiceValues = c("Accessories", "Appliances", "Art", "Binders", "Bookcases", "Chairs", "Copiers", "Envelopes", "Fasteners", "Furnishings", "Labels", "Machines", "Paper", "Phones", "Storage", "Supplies", "Tables")
+                        ),
+                        checkboxGroupInput(inputId = "state",
+                                           label = "Consumer's State",
+                                           choiceNames = c("Alabama", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Idaho", "Illinois", "Indiana", "Iowa", "Kentucky", "Louisiana", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Nevada", "New Hampshire", "New Jersey", "New York", "North Carolina", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "Tennessee", "Texas", "Utah", "Virginia", "Washington", "West Virginia", "Wisconsin"),
+                                           choiceValues = c("Alabama", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Idaho", "Illinois", "Indiana", "Iowa", "Kentucky", "Louisiana", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Nevada", "New Hampshire", "New Jersey", "New York", "North Carolina", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "Tennessee", "Texas", "Utah", "Virginia", "Washington", "West Virginia", "Wisconsin")
+                        ),
+                        
+                        # Additional numeric variables
+                        sliderInput(inputId = "profit",
+                                    label = "Profit from Individual Sales (USD)",
+                                    min = -6600,
+                                    max = 8400,
+                                    value = c(-1000,1000),
+                                    pre = "$"
+                        ),
+                        sliderInput(inputId = "sales",
+                                    label = "Individual Sales (USD)",
+                                    min = 0,
+                                    max = 22650,
+                                    value = c(0,10000),
+                                    pre = "$"
+                        )
+                      ),
                       tabsetPanel(
-                        tabPanel("Categorical Data Summary"),
-                        tabPanel("Numeric Data Summary")
+                        tabPanel("Categorical Data Summary",
+                                
+                                 tableOutput(outputId = "region_sum"),
+                                 tableOutput(outputId = "consumer_sum"),
+                                 tableOutput(outputId = "category_sum"),
+                                 tableOutput(outputId = "region_consumer_sum"),
+                                 tableOutput(outputId = "region_category_sum"),
+                                 tableOutput(outputId = "consumer_category_sum"),
+                                 ),
+                        tabPanel("Numeric Data Summary",
+                                 sidebarPanel(
+                                   
+                                 )
+                                 )
                       )
                       )
           ),
