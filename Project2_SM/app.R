@@ -37,17 +37,24 @@ ui <- fluidPage(
                              choiceValues = c("furniture", "office supplies", "technology"),
                              selected = "furniture"
                              ),
+          
           # Add input values for numeric variables
           sliderInput(inputId = "profit",
                       label = "Profit from Individual Sales (USD)",
                       min = -6600,
                       max = 8400,
-                      value = c(-1000,1000)),
+                      value = c(-1000,1000),
+                      pre = "$"),
           sliderInput(inputId = "sales",
                       label = "Individual Sales (USD)",
                       min = 0,
                       max = 22650,
-                      value = c(0,10000)),
+                      value = c(0,10000),
+                      pre = "$"),
+          
+          # Add code for action button
+          actionButton(inputId = "store_sample",
+                       label = "Subset Data for Analysis!"),
             sliderInput("bins",
                         "Number of bins:",
                         min = 1,
@@ -81,7 +88,12 @@ ui <- fluidPage(
                         )
                       ),
             nav_panel("Data Download"),
-            nav_panel("Data Exploration")
+            nav_panel("Data Exploration",
+                      tabsetPanel(
+                        tabPanel("Categorical Data Summary"),
+                        tabPanel("Numeric Data Summary")
+                      )
+                      )
           ),
            plotOutput("distPlot")
         )
