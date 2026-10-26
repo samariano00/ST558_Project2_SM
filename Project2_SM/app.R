@@ -35,11 +35,19 @@ ui <- fluidPage(
                              label = "Product Category",
                              choiceNames = c("Furniture", "Office Supplies", "Technology"),
                              choiceValues = c("furniture", "office supplies", "technology"),
-                             selected = "Furniture"
+                             selected = "furniture"
                              ),
           # Add input values for numeric variables
           sliderInput(inputId = "profit",
-                      label = "Profit from Sale",),
+                      label = "Profit from Individual Sales (USD)",
+                      min = -6600,
+                      max = 8400,
+                      value = c(-1000,1000)),
+          sliderInput(inputId = "sales",
+                      label = "Individual Sales (USD)",
+                      min = 0,
+                      max = 22650,
+                      value = c(0,10000)),
             sliderInput("bins",
                         "Number of bins:",
                         min = 1,
@@ -69,7 +77,7 @@ ui <- fluidPage(
                       tags$figure(
                         class = "centerGettyImage",
                         HTML("<a id='B2pnQLCrSYpEDEyEAUxV2Q' class='gie-single' href='https://www.gettyimages.com/detail/1403886950' target='_blank' style='color:#a7a7a7;text-decoration:none;font-weight:normal !important;border:none;display:inline-block;'>Embed from Getty Images</a><script>window.gie=window.gie||function(c){(gie.q=gie.q||[]).push(c)};gie(function(){gie.widgets.load({id:'B2pnQLCrSYpEDEyEAUxV2Q',sig:'ICrAZ1U830O0NvZ3Qp_tfP1kVIkz6-HN4K99fDIy3So=',w:'496px',h:'347px',items:'1403886950',caption: true ,tld:'com',is360: false })});</script><script src='//embed-cdn.gettyimages.com/widgets.js' charset='utf-8' async></script>"),
-                        tags$figcaption("Shopping Carts on a Bar Graph to Combine Data Analysis with the type of Data You'll be Working With!")
+                        tags$figcaption("Shopping Carts on a Bar Graph to Combine Data Analysis with the Type of Data You'll be Working With!")
                         )
                       ),
             nav_panel("Data Download"),
