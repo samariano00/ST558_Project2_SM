@@ -77,7 +77,11 @@ ui <- fluidPage(
                         tags$figcaption("Shopping Carts on a Bar Graph to Combine Data Analysis with the Type of Data You'll be Working With!")
                         )
                       ),
-            nav_panel("Data Download"),
+            nav_panel("Data Download",
+                      dataTableOutput(outputId = "download_data"),
+                      downloadButton(outputId = "data_button",
+                                     label = "Download")
+                      ),
             nav_panel("Data Exploration",
                       sidebarPanel(
                         # Additional categorical variables
@@ -162,8 +166,21 @@ server <- function(input, output, session) {
     index <- sample(1:nrow(subset_data))
     
     # Update reactive object
-    store_sample <- subset_data[index,]
+    store_sample$sample_data <- subset_data[index,]
+    
+    # Render the data table to be downloaded in the Data Download tab
+    output$download_data <- renderDataTable(store_sample$sample_data)
   }
+  )
+  
+  # Code for download button
+  output$data_button <- downloadButton(
+    filename = function() {
+      outputId = paste("data-", Sys.Date(), ".csv", sep = "")
+    },
+    content = function(con) {
+      write.csv(store_sample$sample_data, con)
+    }
   )
 
 }
