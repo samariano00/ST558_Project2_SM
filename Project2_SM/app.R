@@ -5,9 +5,6 @@ library(ggplot2)
 library(glue)
 library(DT)
 
-# Load the raw data into R
-store_data <- readRDS("../superstoredata.RDS")
-
 # Define UI
 ui <- fluidPage(
 
@@ -21,21 +18,18 @@ ui <- fluidPage(
           # Add in input values for categorical variables
           checkboxGroupInput(inputId = "region",
                              label = "U.S. Region",
-                             choiceNames = c("Central", "South", "East", "West"),
-                             choiceValues = c("central", "south", "east", "west"),
-                             selected = "east"
+                             choices = c("Central", "South", "East", "West"),
+                             selected = "East"
                              ),
           checkboxGroupInput(inputId = "consumer",
                              label = "Consumer's Segment",
-                             choiceNames = c("Consumer", "Corporate", "Home Office"),
-                             choiceValues = c("consumer", "corporate", "home office"),
-                             selected = "consumer"
+                             choices = c("Consumer", "Corporate", "Home Office"),
+                             selected = "Consumer"
                              ),
-          checkboxGroupInput(inputId = "category",
+          checkboxGroupInput(inputId = "cat",
                              label = "Product Category",
-                             choiceNames = c("Furniture", "Office Supplies", "Technology"),
-                             choiceValues = c("furniture", "office supplies", "technology"),
-                             selected = "furniture"
+                             choices = c("Furniture", "Office Supplies", "Technology"),
+                             selected = "Furniture"
                              ),
           
           # Add input values for numeric variables
@@ -51,15 +45,11 @@ ui <- fluidPage(
                       max = 1,
                       value = c(0.25,0.75)
                       ),
+          "Note: To look only at the impact that the categorical variables have on the data without any impact from numeric variables, set range for Quantity and Discount to minimum and maximum values.",
           
           # Add code for action button
           actionButton(inputId = "store_sample",
-                       label = "Subset Data for Analysis!"),
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
+                       label = "Subset Data for Analysis!")
         ),
 
         # Add code for different tabs as desired in the main panel
@@ -91,16 +81,15 @@ ui <- fluidPage(
             nav_panel("Data Exploration",
                       sidebarPanel(
                         # Additional categorical variables
-                        checkboxGroupInput(inputId = "sub-category",
+                        h2("Additional Variables to Filter Data On"),
+                        checkboxGroupInput(inputId = "sub_category",
                                            label = "Product's Sub-Category",
-                                           choiceNames = c("Accessories", "Appliances", "Art", "Binders", "Bookcases", "Chairs", "Copiers", "Envelopes", "Fasteners", "Furnishings", "Labels", "Machines", "Paper", "Phones", "Storage", "Supplies", "Tables"),
-                                           choiceValues = c("Accessories", "Appliances", "Art", "Binders", "Bookcases", "Chairs", "Copiers", "Envelopes", "Fasteners", "Furnishings", "Labels", "Machines", "Paper", "Phones", "Storage", "Supplies", "Tables")
-                        ),
+                                           choices = c("Accessories", "Appliances", "Art", "Binders", "Bookcases", "Chairs", "Copiers", "Envelopes", "Fasteners", "Furnishings", "Labels", "Machines", "Paper", "Phones", "Storage", "Supplies", "Tables")
+                                           ),
                         checkboxGroupInput(inputId = "state",
                                            label = "Consumer's State",
-                                           choiceNames = c("Alabama", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Idaho", "Illinois", "Indiana", "Iowa", "Kentucky", "Louisiana", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Nevada", "New Hampshire", "New Jersey", "New York", "North Carolina", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "Tennessee", "Texas", "Utah", "Virginia", "Washington", "West Virginia", "Wisconsin"),
-                                           choiceValues = c("Alabama", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Idaho", "Illinois", "Indiana", "Iowa", "Kentucky", "Louisiana", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Nevada", "New Hampshire", "New Jersey", "New York", "North Carolina", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "Tennessee", "Texas", "Utah", "Virginia", "Washington", "West Virginia", "Wisconsin")
-                        ),
+                                           choices = c("Alabama", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "District of Columbia", "Florida", "Georgia", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming")
+                                           ),
                         
                         # Additional numeric variables
                         sliderInput(inputId = "profit",
@@ -116,7 +105,8 @@ ui <- fluidPage(
                                     max = 22650,
                                     value = c(0,10000),
                                     pre = "$"
-                        )
+                        ),
+                        "Note: To look only at the impact that the categorical variables have on the data without any impact from numeric variables, set range for Sales and Profit to minimum and maximum values."
                       ),
                       tabsetPanel(
                         tabPanel("Categorical Data Summary",
@@ -135,25 +125,47 @@ ui <- fluidPage(
                                  )
                       )
                       )
-          ),
-           plotOutput("distPlot")
+          )
         )
     )
 )
 
+# Load the raw data into R
+store_data <- readRDS("../superstoredata.RDS")
+
 # Define server logic
 server <- function(input, output, session) {
 
-    output$distPlot <- renderPlot({
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
+  # Creating reactive value for action button
+  store_sample <- reactiveValues(sample_data = NULL)
+  
+  # Code for side bar action button
+  observeEvent(input$store_sample, {
+    
+    subset_data <- store_data |>
+      # Filter categorical variables first
+      filter(
+        Region %in% input$region,
+        Segment %in% input$consumer,
+        Category %in% input$cat,
+        `Sub-Category` %in% input$sub_category,
+        State %in% input$state,
+        Quantity %in% input$quantity,
+        Discount %in% input$discount,
+        Profit %in% input$profit,
+        Sales %in% input$sales
+      )
+    
+    # Part of my app involves subsetting state and product sub-category involved in region and product category respectively, so I'm going to create the code to do that here
 
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white',
-             xlab = 'Waiting time to next eruption (in mins)',
-             main = 'Histogram of waiting times')
-    })
+    
+    index <- sample(1:nrow(subset_data))
+    
+    # Update reactive object
+    store_sample <- subset_data[index,]
+  }
+  )
+
 }
 
 # Run the application 
