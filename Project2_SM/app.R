@@ -137,7 +137,7 @@ ui <- fluidPage(
 )
 
 # Load the raw data into R
-store_data <- readRDS("../superstoredata.RDS")
+store_data <- readRDS("../store_data.RDS")
 
 # Define server logic
 server <- function(input, output, session) {
@@ -149,7 +149,10 @@ server <- function(input, output, session) {
   observeEvent(input$store_sample, {
     
     # Connect input data to store data
-    subset_data <- store_data
+    subset_data <- store_data |>
+      filter(
+        
+      )
     
     index <- sample(1:nrow(subset_data))
     
