@@ -4,6 +4,8 @@ library(tidyverse)
 library(ggplot2)
 library(glue)
 library(DT)
+library(shinycssloaders)
+library(rsconnect)
 
 # Define UI
 ui <- fluidPage(
@@ -31,7 +33,7 @@ ui <- fluidPage(
                              choices = c("Furniture", "Office Supplies", "Technology"),
                              selected = "Furniture"
                              ),
-          
+          "Note: To look at impact of numeric variables only, select all options for U.S. Region, Consumer's Segment, and Product Category",
           # Add input values for numeric variables
           sliderInput(inputId = "quantity",
                       label = "Quantity of Units Sold",
@@ -120,7 +122,7 @@ ui <- fluidPage(
                                  tableOutput(outputId = "category_sum"),
                                  tableOutput(outputId = "region_consumer_sum"),
                                  tableOutput(outputId = "region_category_sum"),
-                                 tableOutput(outputId = "consumer_category_sum"),
+                                 tableOutput(outputId = "consumer_category_sum")
                                  ),
                         tabPanel("Numeric Data Summary",
                                  sidebarPanel(
@@ -145,6 +147,8 @@ server <- function(input, output, session) {
   
   # Code for side bar action button
   observeEvent(input$store_sample, {
+    #Part of my app involves subsetting state and product sub-category involved in region and product category respectively, so I'm going to create the reactive elements for those here
+    limitState <- reactive()
     
     subset_data <- store_data |>
       # Filter categorical variables first
@@ -154,36 +158,39 @@ server <- function(input, output, session) {
         Category %in% input$cat,
         `Sub-Category` %in% input$sub_category,
         State %in% input$state,
+        # Filter numeric variables next
         Quantity %in% input$quantity,
         Discount %in% input$discount,
         Profit %in% input$profit,
         Sales %in% input$sales
       )
     
-    # Part of my app involves subsetting state and product sub-category involved in region and product category respectively, so I'm going to create the code to do that here
-
-    
     index <- sample(1:nrow(subset_data))
     
     # Update reactive object
     store_sample$sample_data <- subset_data[index,]
     
+    # Part of my app involves subsetting state and product sub-category involved in region and product category respectively, so I'm going to create the code to do that here
+    
+    observeEvent(updateCheckboxGroupInput(session,
+                                          inputId = "Sub-Category",
+                                          choices = unique(store_sample$sample_data$Category)),
+                 updateCheckboxGroupInput(session,
+                                          inputId = "State",
+                                          choices = unique(store_sample$sample_data$Region))
+                 )
+    
     # Render the data table to be downloaded in the Data Download tab
     output$download_data <- renderDataTable(store_sample$sample_data)
-  }
-  )
+        })
+  
   
   # Code for download button
-  output$data_button <- downloadButton(
-    filename = function() {
-      outputId = paste("data-", Sys.Date(), ".csv", sep = "")
-    },
-    content = function(con) {
-      write.csv(store_sample$sample_data, con)
+  
+  # Code for Loader
     }
-  )
-
-}
+  
+    
 
 # Run the application 
 shinyApp(ui = ui, server = server)
