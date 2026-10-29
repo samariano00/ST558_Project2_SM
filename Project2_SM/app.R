@@ -144,44 +144,46 @@ server <- function(input, output, session) {
 
   # Create reactive value to connect input data to super store data
   super_store_subset <- reactive({
-    super_store |>
+    req(super_store) |>
       # Filter categorical variables first
       filter(
-        Region %in% input$region$choices,
-        Segment %in% input$consumer$choices,
-        Category %in% input$cat$choices,
-        `Sub-Category` %in% input$sub_category$choices,
-        State %in% input$state$choices,
-        input$quantity$min < Quantity < input$quantity$max,
-        input$discount$min < Discount < input$discount$max,
-        input$profit$min < Profit < input$profit$max,
-        input$sales$min < Sales < input$sales$max
-      ) %>% # Filter numeric variables
-      #    {if("Quantity" %in% input$quantity) filter(super_store, Quantity > 1)} %>%
-      #   {if("Discount" %in% input$discount) filter(super_store, Discount > 0)} %>%
-      #   {if("Profit" %in% input$profit) filter(super_store, Profit > -6600)} %>%
-      #   {if("Sales" %in% input$sales) filter(super_store, Sales > 0)}
+        Region %in% input$region,
+        Segment %in% input$consumer,
+        Category %in% input$cat,
+        `Sub-Category` %in% input$sub_category,
+        State %in% input$state,
+        Quantity %in% input$quantity,
+        Discount %in% input$discount,
+        Profit %in% input$profit,
+        Sales %in% input$sales
+      )
   })
   
   # Creating reactive value for action button
-  store_sample <- reactive(sample_data = NULL)
+  store_sample <- reactiveValues(sample_data = NULL)
   
   # Code for side bar action button
   observeEvent(input$store_sample, {
-
+    
+    # Call superstore subset function
+    subset <- super_store_subset()
+    
     # Connect input data to store data
-    index <- sample(1:nrow(super_store_subset))
+    index <- sample(1:nrow(subset))
     
     # Update reactive object
-    store_sample$sample_data <- super_store_subset[index,]
+    store_sample$sample_data <- subset[index,]
     
     # Render the data table to be downloaded in the Data Download tab
-    output$download_data <- renderDataTable(store_sample$sample_data,
-                                            rownames = FALSE)
+#    output$download_data <- renderDataTable(store_sample$sample_data,
+#                                            rownames = FALSE)
     
     })
   # Part of my app involves subsetting state and product sub-category involved in region and product category respectively, so I'm going to create the code to do that here
   
+  # Render the data table to be downloaded in the Data Download tab
+ output$download_data <- renderDataTable(store_sample$sample_data,
+                                          rownames = FALSE)
   #observeEvent(updateCheckboxGroupInput(session,
                                         #inputId = "Sub-Category",
                                         #choices = unique(store_sample$sample_data$Category)),
@@ -196,6 +198,5 @@ server <- function(input, output, session) {
     }
   
     
-
 # Run the application 
 shinyApp(ui = ui, server = server)
