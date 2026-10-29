@@ -21,25 +21,20 @@ ui <- fluidPage(
         sidebarPanel(
           h2("Create a Subset of the Data"),
           # Add in input values for categorical variables
-          checkboxGroupInput(inputId = "region_c",
+          checkboxGroupInput(inputId = "region",
                              label = "U.S. Region",
                              choices = levels(super_store$Region),
                              selected = levels(super_store$Region)
                              ),
-          radioButtons(inputId = "region",
-                             label = "U.S. Region",
-                             choices = c("Central", "South", "East", "West"),
-                             selected = "East"
-                             ),
-          radioButtons(inputId = "consumer",
+          checkboxGroupInput(inputId = "consumer",
                              label = "Consumer's Segment",
-                             choices = c("Consumer", "Corporate", "Home Office"),
-                             selected = "Consumer"
+                             choices = levels(super_store$Segment),
+                             selected = levels(super_store$Segment)
                              ),
-          radioButtons(inputId = "cat",
+          checkboxGroupInput(inputId = "cat",
                              label = "Product Category",
-                             choices = c("Furniture", "Office Supplies", "Technology"),
-                             selected = "Furniture"
+                             choices = levels(super_store$Category),
+                             selected = levels(super_store$Category)
                              ),
           "Note: To look at impact of numeric variables only, select all options for U.S. Region, Consumer's Segment, and Product Category",
           # Add input values for numeric variables
@@ -98,11 +93,11 @@ ui <- fluidPage(
                         h2("Additional Variables to Filter Data On"),
                         checkboxGroupInput(inputId = "sub_category",
                                            label = "Product's Sub-Category",
-                                           choices = c("Accessories", "Appliances", "Art", "Binders", "Bookcases", "Chairs", "Copiers", "Envelopes", "Fasteners", "Furnishings", "Labels", "Machines", "Paper", "Phones", "Storage", "Supplies", "Tables")
+                                           choices = levels(super_store$`Sub-Category`)
                                            ),
                         checkboxGroupInput(inputId = "state",
                                            label = "Consumer's State",
-                                           choices = c("Alabama", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "District of Columbia", "Florida", "Georgia", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming")
+                                           choices = levels(super_store$State)
                                            ),
                         
                         # Additional numeric variables
@@ -124,16 +119,18 @@ ui <- fluidPage(
                       ),
                       tabsetPanel(
                         tabPanel("Categorical Data Summary",
-                                
-                                 tableOutput(outputId = "region_sum"),
-                                 tableOutput(outputId = "consumer_sum"),
-                                 tableOutput(outputId = "category_sum"),
-                                 tableOutput(outputId = "region_consumer_sum"),
-                                 tableOutput(outputId = "region_category_sum"),
-                                 tableOutput(outputId = "consumer_category_sum")
+                                withSpinner(# code for loading spinner
+                                  tableOutput(outputId = "region_sum"),
+                                  tableOutput(outputId = "consumer_sum"),
+                                  tableOutput(outputId = "category_sum"),
+                                  tableOutput(outputId = "region_consumer_sum"),
+                                  tableOutput(outputId = "region_category_sum"),
+                                  tableOutput(outputId = "consumer_category_sum"))
                                  ),
                         tabPanel("Numeric Data Summary",
-                                 sidebarPanel(
+                                 withSpinner(# Code for loading spinner
+                                   
+                                 )
                                    
                                  )
                                  )
@@ -151,7 +148,7 @@ server <- function(input, output, session) {
   super_store_subset <- reactive({
     req(super_store) |>
       filter(
-        Region %in% input$region,
+        Region %in%input$region,
         Segment %in% input$consumer,
         Category %in% input$cat,
         `Sub-Category` %in% input$sub_category,
@@ -182,12 +179,60 @@ server <- function(input, output, session) {
 #    output$download_data <- renderDataTable(store_sample$sample_data,
 #                                            rownames = FALSE)
     
+    # Render contingency tables
+    
+    output$region_sum <- renderTable(
+      store_sample$sample_data |>
+        group_by(Region) |>
+        summarise(count = n())
+    )
+    
+    output$consumer_sum <- renderTable(
+      store_sample$sample_data |>
+        group_by(Segment) |>
+        summarise(count = n())
+    )
+    
+    output$category_sum <- renderTable(
+      store_sample$sample_data |>
+        group_by(Category) |>
+        summarise(count = n())
+    )
+    
+    output$region_consumer_sum <- renderTable(
+      store_sample$sample_data |>
+        group_by(Region, Segment) |>
+        summarise(count = n())
+    )
+    
+    output$region_category_sum <- renderTable(
+      store_sample$sample_data |>
+        group_by(Region, Category) |>
+        summarise(count = n())
+    )
+    
+    output$consumer_category_sum <- renderTable(
+      store_sample$sample_data |>
+        group_by(Segment, Category) |>
+        summarise(count = n())
+    )
+    
+    # Render the data table to be downloaded in the Data Download tab
+    output$download_data <- renderDataTable(store_sample$sample_data,
+                                            rownames = FALSE)
+    
+    # Code for download button
+    output$data_button <- downloadHandler(
+      filename = function(){
+        paste('data-', Sys.Date(), '.csv', sep = '')
+      },
+      content = function(con){
+        write.csv(data = store_sample$sample_data, con)
+        
     })
   # Part of my app involves subsetting state and product sub-category involved in region and product category respectively, so I'm going to create the code to do that here
   
-  # Render the data table to be downloaded in the Data Download tab
-  output$download_data <- renderDataTable(store_sample$sample_data,
-                                          rownames = FALSE)
+
   #observeEvent(updateCheckboxGroupInput(session,
                                         #inputId = "Sub-Category",
                                         #choices = unique(store_sample$sample_data$Category)),
@@ -196,57 +241,12 @@ server <- function(input, output, session) {
                                         #choices = unique(store_sample$sample_data$Region))
   #)
   
-  # Render contingency tables
-  output$region_sum <- renderTable(
-    super_store |>
-      group_by(Region) |>
-      mutate(Region = input$region) |>
-      summarise(count = n())
-  )
   
-  output$consumer_sum <- renderTable(
-    super_store |>
-      group_by(Segment) |>
-      summarise(count = n())
-  )
-  
-  output$category_sum <- renderTable(
-    super_store |>
-      group_by(Category) |>
-      summarise(count = n())
-  )
-  
-  output$region_consumer_sum <- renderTable(
-    super_store |>
-      group_by(Region, Segment) |>
-      summarise(count = n())
-  )
-  
-  output$region_category_sum <- renderTable(
-    super_store |>
-      group_by(Region, Category) |>
-      summarise(count = n())
-  )
-  
-  output$consumer_category_sum <- renderTable(
-    super_store |>
-      group_by(Segment, Category) |>
-      summarise(count = n())
-  )
 
-  
-  # Code for download button
-  output$data_button <- downloadHandler(
-   filename = function(){
-     paste('data-', Sys.Date(), '.csv', sep = '')
-   },
-   content = function(con){
-     write.csv(data = store_sample$sample_data, con)
    }
  ) 
   
-  # Code for Loader
-    }
+  }
   
     
 # Run the application 
