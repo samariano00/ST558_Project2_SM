@@ -182,7 +182,7 @@ server <- function(input, output, session) {
   # Part of my app involves subsetting state and product sub-category involved in region and product category respectively, so I'm going to create the code to do that here
   
   # Render the data table to be downloaded in the Data Download tab
- output$download_data <- renderDataTable(store_sample$sample_data,
+  output$download_data <- renderDataTable(store_sample$sample_data,
                                           rownames = FALSE)
   #observeEvent(updateCheckboxGroupInput(session,
                                         #inputId = "Sub-Category",
@@ -193,6 +193,14 @@ server <- function(input, output, session) {
   #)
   
   # Code for download button
+  output$data_button <- downloadHandler(
+   filename = function(){
+     paste('data-', Sys.Date(), '.csv', sep = '')
+   },
+   content = function(con){
+     write.csv(data = store_sample$sample_data, con)
+   }
+ ) 
   
   # Code for Loader
     }
