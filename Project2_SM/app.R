@@ -7,6 +7,9 @@ library(DT)
 library(shinycssloaders)
 library(rsconnect)
 
+# Load the raw data into R
+super_store <- readRDS("../store_data.RDS")
+
 # Define UI
 ui <- fluidPage(
 
@@ -18,17 +21,22 @@ ui <- fluidPage(
         sidebarPanel(
           h2("Create a Subset of the Data"),
           # Add in input values for categorical variables
-          checkboxGroupInput(inputId = "region",
+          checkboxGroupInput(inputId = "region_c",
+                             label = "U.S. Region",
+                             choices = levels(super_store$Region),
+                             selected = levels(super_store$Region)
+                             ),
+          radioButtons(inputId = "region",
                              label = "U.S. Region",
                              choices = c("Central", "South", "East", "West"),
                              selected = "East"
                              ),
-          checkboxGroupInput(inputId = "consumer",
+          radioButtons(inputId = "consumer",
                              label = "Consumer's Segment",
                              choices = c("Consumer", "Corporate", "Home Office"),
                              selected = "Consumer"
                              ),
-          checkboxGroupInput(inputId = "cat",
+          radioButtons(inputId = "cat",
                              label = "Product Category",
                              choices = c("Furniture", "Office Supplies", "Technology"),
                              selected = "Furniture"
@@ -136,9 +144,6 @@ ui <- fluidPage(
     )
 )
 
-# Load the raw data into R
-super_store <- readRDS("../store_data.RDS")
-
 # Define server logic
 server <- function(input, output, session) {
 
@@ -195,6 +200,7 @@ server <- function(input, output, session) {
   output$region_sum <- renderTable(
     super_store |>
       group_by(Region) |>
+      mutate(Region = input$region) |>
       summarise(count = n())
   )
   

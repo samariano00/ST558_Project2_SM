@@ -26,7 +26,7 @@ store_data
 class(store_data)
 
 # the object was initially read-in as a tibble, so I don't need to make any conversions in order to work with it in the tidyverse.  Now, I'll parse the data as needed.
-store_data |>
+store_data <- store_data |>
   mutate(
     `Order Date` = as.Date(`Order Date`),
     `Ship Date` = as.Date(`Ship Date`),
