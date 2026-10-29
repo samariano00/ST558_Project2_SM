@@ -145,7 +145,6 @@ server <- function(input, output, session) {
   # Create reactive value to connect input data to super store data
   super_store_subset <- reactive({
     req(super_store) |>
-      # Filter categorical variables first
       filter(
         Region %in% input$region,
         Segment %in% input$consumer,
@@ -191,6 +190,44 @@ server <- function(input, output, session) {
                                         #inputId = "State",
                                         #choices = unique(store_sample$sample_data$Region))
   #)
+  
+  # Render contingency tables
+  output$region_sum <- renderTable(
+    super_store |>
+      group_by(Region) |>
+      summarise(count = n())
+  )
+  
+  output$consumer_sum <- renderTable(
+    super_store |>
+      group_by(Segment) |>
+      summarise(count = n())
+  )
+  
+  output$category_sum <- renderTable(
+    super_store |>
+      group_by(Category) |>
+      summarise(count = n())
+  )
+  
+  output$region_consumer_sum <- renderTable(
+    super_store |>
+      group_by(Region, Segment) |>
+      summarise(count = n())
+  )
+  
+  output$region_category_sum <- renderTable(
+    super_store |>
+      group_by(Region, Category) |>
+      summarise(count = n())
+  )
+  
+  output$consumer_category_sum <- renderTable(
+    super_store |>
+      group_by(Segment, Category) |>
+      summarise(count = n())
+  )
+
   
   # Code for download button
   output$data_button <- downloadHandler(
